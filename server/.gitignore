@@ -1,0 +1,5 @@
+node_modules/
+
+# Variables de entorno (¡MUY IMPORTANTE!)
+# Aquí están tu Connection String y tus llaves de Supabase
+.env
