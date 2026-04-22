@@ -71,3 +71,17 @@ export const updatePost = async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 };
+
+export const deletePost = async (req, res) => {
+  const { id } = req.params;
+  const { user_id } = req.body;
+
+  const { error } = await supabase
+    .from('posts')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user_id);
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ message: "Post eliminado" });
+};
