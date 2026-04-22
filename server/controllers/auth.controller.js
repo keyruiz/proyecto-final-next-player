@@ -1,3 +1,17 @@
+import { supabase } from '../config/supabase.js';
+
+export const loginWithSteam = async (req, res) => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'steam',
+    options: {
+      redirectTo: 'http://localhost:3000/api/auth/callback',
+    },
+  });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.redirect(data.url);
+};
+
 export const authCallback = async (req, res) => {
   const { code } = req.query;
   const { data, error: authError } = await supabase.auth.exchangeCodeForSession(code);
