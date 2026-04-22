@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase.js';
+import { supabase } from '../supabase.js';
 
 export const loginWithSteam = async (req, res) => {
   const { data, error } = await supabase.auth.signInWithOAuth({
