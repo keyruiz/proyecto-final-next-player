@@ -33,7 +33,7 @@ export const createPost = async (req, res) => {
       .select('id')
       .eq('user_id', user_id)
       .maybeSingle();
-      
+
     if (existingPost) return res.status(400).json({ message: "Ya tienes un post activo" });
 
     const { data, error } = await supabase
@@ -55,4 +55,19 @@ export const createPost = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+export const updatePost = async (req, res) => {
+  const { id } = req.params;
+  const { user_id, title, description, role, rank, is_active } = req.body;
+
+  const { data, error } = await supabase
+    .from('posts')
+    .update({ title, description, role, rank, is_active })
+    .eq('id', id)
+    .eq('user_id', user_id)
+    .select();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
 };
