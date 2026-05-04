@@ -1,16 +1,16 @@
 import { supabase} from '../supabase.js';
 
 export const getPosts = async (req, res) => {
-  const { game } = req.query; 
+  const { game, game_id } = req.query;
+  const gameFilter = game_id || game;
 
   try {
     let query = supabase
       .from('posts')
-      .select('*, profiles(username, avatar)');
+      .select('*, profiles(username, avatar), games(name)');
 
-   
-    if (game && game !== 'Todos') {
-      query = query.eq('game_name', game); 
+    if (gameFilter && gameFilter !== 'Todos') {
+      query = query.eq('game_id', gameFilter);
     }
 
     const { data, error } = await query;
@@ -27,6 +27,15 @@ export const createPost = async (req, res) => {
   const { user_id, game_id, title, description, role, rank } = req.body;
 
   try {
+    const { data: gameRecord, error: gameError } = await supabase
+      .from('games')
+      .select('id')
+      .eq('id', game_id)
+      .maybeSingle();
+
+    if (gameError) throw gameError;
+    if (!gameRecord) return res.status(400).json({ error: 'game_id no válido' });
+
     // Verificamos si ya tiene uno
     const { data: existingPost } = await supabase
       .from('posts')
