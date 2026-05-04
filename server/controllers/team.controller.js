@@ -40,17 +40,33 @@ export const getTeams = async (req, res) => {
 };
 
 export const createTeam = async (req, res) => {
-  const { game_id, name, logo, description } = req.body;
+  const { game_id, name, logo, description, owner_id } = req.body;
+
+  if (!owner_id) {
+    return res.status(400).json({ error: 'owner_id es obligatorio' });
+  }
 
   try {
-    const { data, error } = await supabase
+    const { data: teamData, error: teamError } = await supabase
       .from('teams')
-      .insert([{ game_id, name, logo, description }])
+      .insert([{ game_id, name, logo, description, owner_id }])
       .select();
 
-    if (error) throw error;
-    res.status(201).json(data);
+    if (teamError) throw teamError;
+    if (!teamData || teamData.length === 0) {
+      return res.status(500).json({ error: 'Error al crear el equipo' });
+    }
 
+    const teamId = teamData[0].id;
+
+    const { data: memberData, error: memberError } = await supabase
+      .from('team_member')
+      .insert([{ team_id: teamId, user_id: owner_id, role: 'ceo', joined_at: new Date().toISOString() }])
+      .select();
+
+    if (memberError) throw memberError;
+
+    res.status(201).json({ team: teamData[0], member: memberData[0] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
