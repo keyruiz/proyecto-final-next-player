@@ -38,7 +38,7 @@ export const authCallback = async (req, res) => {
       const { error: errUsers } = await supabase.from('users').upsert({
         id: steamId,
         email: null, // Steam no proporciona email
-        role: 'player'
+        role: 'users'
       });
       if (errUsers) throw new Error(`Error en users: ${errUsers.message}`);
 
