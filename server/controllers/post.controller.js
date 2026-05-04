@@ -7,7 +7,7 @@ export const getPosts = async (req, res) => {
   try {
     let query = supabase
       .from('posts')
-      .select('*, profiles(username, avatar), games(name)');
+      .select('*, games(name), users(profiles(username, avatar))');
 
     if (gameFilter && gameFilter !== 'Todos') {
       query = query.eq('game_id', gameFilter);
