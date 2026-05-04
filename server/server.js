@@ -4,6 +4,7 @@ import authRoutes from './routes/auth.routes.js';
 import postRoutes from './routes/post.routes.js';
 import teamRoutes from './routes/team.routes.js';
 import memberRoutes from './routes/member.routes.js';
+import profileRoutes from './routes/profile.routes.js';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/members', memberRoutes);
+app.use('/api/profiles', profileRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
