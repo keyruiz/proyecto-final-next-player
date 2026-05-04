@@ -1,65 +1,72 @@
 import { supabase } from '../supabase.js';
+import OpenID from 'openid';
+
+const steam = new OpenID.RelyingParty(
+  'http://localhost:3000/api/auth/callback',
+  'http://localhost:3000',
+  true,
+  false,
+  []
+);
 
 export const loginWithSteam = async (req, res) => {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'steam',
-    options: {
-      redirectTo: 'http://localhost:3000/api/auth/callback',
-    },
+  steam.authenticate('https://steamcommunity.com/openid', false, (error, authUrl) => {
+    if (error) return res.status(500).json({ error: error.message });
+    res.redirect(authUrl);
   });
-
-  if (error) return res.status(500).json({ error: error.message });
-  res.redirect(data.url);
 };
 
 export const authCallback = async (req, res) => {
-  const { code } = req.query;
-  const { data, error: authError } = await supabase.auth.exchangeCodeForSession(code);
+  steam.verifyAssertion(req, async (error, result) => {
+    if (error || !result.authenticated) {
+      return res.status(400).json({ error: 'Steam authentication failed' });
+    }
 
-  if (authError) return res.status(500).json({ error: authError.message });
+    const steamId = result.claimedIdentifier.split('/').pop();
 
-  const { user, session } = data;
+    try {
+      // Obtener datos del usuario de Steam API
+      const steamResponse = await fetch(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`);
+      const steamData = await steamResponse.json();
+      const player = steamData.response.players[0];
 
-  try {
-    // 1. Insertar en 'users'
-    const { error: errUsers } = await supabase.from('users').upsert({
-      id: user.id,
-      email: user.email,
-      role: 'player'
-    });
-    if (errUsers) throw new Error(`Error en users: ${errUsers.message}`);
+      if (!player) {
+        return res.status(400).json({ error: 'No se pudo obtener datos de Steam' });
+      }
 
-    // 2. Insertar en 'external_accounts'
-    const { error: errExternal } = await supabase.from('external_accounts').upsert({
-      user_id: user.id,
-      provider: user.app_metadata.provider || 'steam',
-      external_user_id: user.user_metadata.sub,
-      access_token: session.access_token
-    });
-    if (errExternal) throw new Error(`Error en external_accounts: ${errExternal.message}`);
+      // 1. Insertar en 'users'
+      const { error: errUsers } = await supabase.from('users').upsert({
+        id: steamId,
+        email: null, // Steam no proporciona email
+        role: 'player'
+      });
+      if (errUsers) throw new Error(`Error en users: ${errUsers.message}`);
 
-    // 3. Insertar en 'profiles'
-    const { error: errProfiles } = await supabase.from('profiles').upsert({
-      user_id: user.id,
-      username: user.user_metadata.full_name || user.user_metadata.name,
-      avatar: user.user_metadata.avatar_url
-    });
-    if (errProfiles) throw new Error(`Error en profiles: ${errProfiles.message}`);
+      // 2. Insertar en 'external_accounts'
+      const { error: errExternal } = await supabase.from('external_accounts').upsert({
+        user_id: steamId,
+        provider: 'steam',
+        external_user_id: steamId,
+        access_token: null // No hay token persistente en OpenID
+      });
+      if (errExternal) throw new Error(`Error en external_accounts: ${errExternal.message}`);
 
-    // Si llegamos aquí, todo salió bien
-    res.redirect('http://localhost:3000/dashboard');
+      // 3. Insertar en 'profiles'
+      const { error: errProfiles } = await supabase.from('profiles').upsert({
+        user_id: steamId,
+        username: player.personaname,
+        avatar: player.avatarfull || player.avatar
+      });
+      if (errProfiles) throw new Error(`Error en profiles: ${errProfiles.message}`);
 
-  } catch (err) {
-    // Si cualquiera de los "throw" de arriba se ejecuta, el código salta aquí directamente
-    console.error("PROCESO DETENIDO:", err.message);
-    
-    // Aquí podrías decidir si borrar al usuario de Auth para que no quede "a medias"
-    // await supabase.auth.admin.deleteUser(user.id); 
-
-    res.status(500).json({ 
-      status: "error", 
-      message: "Se detuvo el registro por un fallo en la base de datos",
-      detail: err.message 
-    });
-  }
+      res.redirect('http://localhost:3000/dashboard');
+    } catch (err) {
+      console.error("PROCESO DETENIDO:", err.message);
+      res.status(500).json({
+        status: "error",
+        message: "Se detuvo el registro por un fallo en la base de datos",
+        detail: err.message
+      });
+    }
+  });
 };
