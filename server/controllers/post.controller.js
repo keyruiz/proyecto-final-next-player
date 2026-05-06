@@ -26,6 +26,10 @@ export const getPosts = async (req, res) => {
 export const createPost = async (req, res) => {
   const { user_id, game_id, title, description, role, rank } = req.body;
 
+  if (!user_id || !game_id || !title || !description || !role || !rank) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios: user_id, game_id, title, description, role, rank' });
+  }
+
   try {
     const { data: gameRecord, error: gameError } = await supabase
       .from('games')
