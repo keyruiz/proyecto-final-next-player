@@ -26,7 +26,7 @@ export const authCallback = async (req, res) => {
     const steamId = result.claimedIdentifier.split('/').pop();
 
     try {
-      // Verificar si ya existe un usuario con este Steam ID
+      // 1. Verificar si la cuenta de Steam ya existe
       const { data: existingAccount } = await supabase
         .from('external_accounts')
         .select('user_id')
@@ -34,56 +34,71 @@ export const authCallback = async (req, res) => {
         .eq('external_user_id', steamId)
         .maybeSingle();
 
-      let userId;
+      // SI EL USUARIO YA EXISTE: Cortamos aquí el proceso de inserción.
       if (existingAccount) {
-        // Usuario ya existe, usar su user_id
-        userId = existingAccount.user_id;
-      } else {
-        // Nuevo usuario, generar UUID
-        userId = randomUUID();
-
-        // 1. Insertar en 'users'
-        const { error: errUsers } = await supabase.from('users').upsert({
-          id: userId,
-          email: null, // Steam no proporciona email
-          role: 'users'
+        return res.json({ 
+          message: 'Inicio de sesión exitoso (Usuario existente)', 
+          user_id: existingAccount.user_id 
         });
-        if (errUsers) throw new Error(`Error en users: ${errUsers.message}`);
       }
 
-      // Obtener datos del usuario de Steam API
+      // SI EL USUARIO NO EXISTE: Empezamos el proceso de registro único.
+      
+      // Obtener datos de Steam solo para el registro inicial
+      let username = `SteamUser_${steamId.substring(0, 8)}`;
+      let avatar = null;
+
       const steamResponse = await fetch(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`);
-      const steamData = await steamResponse.json();
-      const player = steamData.response.players[0];
+      const steamText = await steamResponse.text();
+      const contentType = steamResponse.headers.get('content-type') || '';
 
-      if (!player) {
-        return res.status(400).json({ error: 'No se pudo obtener datos de Steam' });
+      if (contentType.includes('application/json')) {
+        const steamData = JSON.parse(steamText);
+        const player = steamData.response?.players?.[0];
+        if (player) {
+          username = player.personaname;
+          avatar = player.avatarfull || player.avatar;
+        } else {
+          console.log("Steam API JSON sin jugadores:", steamText);
+          throw new Error('No se pudieron obtener datos de Steam para el registro');
+        }
+      } else {
+        console.log("Steam API devolvió HTML (posible bloqueo o API Key inválida):", steamText.substring(0, 200));
       }
 
-      // 2. Insertar/actualizar en 'external_accounts'
-      const { error: errExternal } = await supabase.from('external_accounts').upsert({
+      const userId = randomUUID();
+
+      // A) Insertar en 'users' con rol 'user'
+      const { error: errUsers } = await supabase.from('users').insert({
+        id: userId,
+        email: null,
+        role: 'user' // Cambiado a 'user' como pediste
+      });
+      if (errUsers) throw new Error(`Error en users: ${errUsers.message}`);
+
+      // B) Insertar en 'external_accounts' (sin tokens innecesarios)
+      const { error: errExternal } = await supabase.from('external_accounts').insert({
         user_id: userId,
         provider: 'steam',
-        external_user_id: steamId,
-        access_token: null, // No hay token persistente en OpenID
-        token_expires_at: null
+        external_user_id: steamId
       });
       if (errExternal) throw new Error(`Error en external_accounts: ${errExternal.message}`);
 
-      // 3. Insertar/actualizar en 'profiles'
-      const { error: errProfiles } = await supabase.from('profiles').upsert({
+      // C) Insertar en 'profiles'
+      const { error: errProfiles } = await supabase.from('profiles').insert({
         user_id: userId,
-        username: player.personaname,
-        avatar: player.avatarfull || player.avatar
+        username: username,
+        avatar: avatar
       });
       if (errProfiles) throw new Error(`Error en profiles: ${errProfiles.message}`);
 
-      res.json({ message: 'Autenticación exitosa', user_id: userId });
+      res.json({ message: 'Usuario creado y autenticado', user_id: userId });
+
     } catch (err) {
-      console.error("PROCESO DETENIDO:", err.message);
+      console.error("ERROR EN REGISTRO:", err.message);
       res.status(500).json({
         status: "error",
-        message: "Se detuvo el registro por un fallo en la base de datos",
+        message: "Error en el proceso de registro",
         detail: err.message
       });
     }
