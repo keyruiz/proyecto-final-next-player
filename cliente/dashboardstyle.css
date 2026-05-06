@@ -1,0 +1,141 @@
+/* Reseteo y Tipografía */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #808080;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+    flex-shrink: 0;
+}
+
+.logo-img {
+    height: 190px;       /* Ajusta la altura según necesites */
+    width: auto;        /* Mantiene la proporción original */
+    display: block;     /* Evita espacios extra debajo de la imagen */
+}
+
+/* Opcional: Si quieres que el logo se vea un poco más grande o pequeño */
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    margin-left: 30px;
+    font-weight: 600;
+}
+
+/* Contenedor principal (Sidebar + Galería) */
+.main-container {
+    display: flex;
+    flex: 1; /* Ocupa todo el alto restante */
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: #d9d9d9;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 30px;
+    justify-content: space-between;
+}
+
+.menu {
+    list-style: none;
+}
+
+.menu li {
+    margin-bottom: 35px;
+}
+
+.menu li a {
+    text-decoration: none;
+    color: #1a1a1a;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.sidebar-footer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 600;
+    font-size: 14px;
+    padding-bottom: 20px;
+}
+
+.sidebar-footer i {
+    font-size: 24px;
+}
+
+/* Área de Galería */
+.content {
+    flex: 1;
+    padding: 40px 60px;
+    overflow-y: auto;
+}
+
+/* Filtro Dropdown */
+.filter-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 30px;
+}
+
+.dropdown {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    border-bottom: 2px solid #000;
+    padding: 5px 10px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Cuadrícula de Juegos */
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas iguales */
+    gap: 40px;
+}
+
+.game-card {
+    width: 100%;
+}
+
+.game-card p {
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.placeholder {
+    background-color: #d9d9d9;
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Cuadrado perfecto */
+}
+
+/* Responsive básico */
+@media (max-width: 1000px) {
+    .game-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
