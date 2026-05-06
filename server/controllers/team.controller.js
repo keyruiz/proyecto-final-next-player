@@ -47,6 +47,16 @@ export const createTeam = async (req, res) => {
   }
 
   try {
+    const { data: existingMember } = await supabase
+      .from('team_member')
+      .select('id')
+      .eq('user_id', owner_id)
+      .maybeSingle();
+
+    if (existingMember) {
+      return res.status(400).json({ error: 'Ya perteneces a un equipo. Debes dejar tu equipo actual para crear uno nuevo.' });
+    }
+
     const { data: teamData, error: teamError } = await supabase
       .from('teams')
       .insert([{ game_id, name, logo, description, owner_id }])
