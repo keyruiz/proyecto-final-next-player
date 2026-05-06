@@ -1,0 +1,166 @@
+/* Configuración Global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #808080;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+}
+
+.logo-img {
+    height: 190px;       /* Ajusta la altura según necesites */
+    width: auto;        /* Mantiene la proporción original */
+    display: block;     /* Evita espacios extra debajo de la imagen */
+}
+
+/* Opcional: Si quieres que el logo se vea un poco más grande o pequeño */
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    margin-left: 30px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.nav-links a.active {
+    color: #ffffff;
+}
+
+/* Contenedor Principal */
+.content {
+    display: flex;
+    justify-content: center;
+    padding-top: 60px;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 400px;
+    text-align: left;
+}
+
+.register-box {
+    width: 100%;
+    max-width: 380px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 40px;
+    font-weight: 500;
+}
+
+/* Formulario */
+.input-field {
+    margin-bottom: 25px;
+}
+
+.input-field label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.input-field input {
+    width: 100%;
+    height: 35px;
+    background-color: #d9d9d9;
+    border: none;
+    outline: none;
+}
+
+/* Checkbox */
+.options {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 15px;
+}
+
+.options input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+}
+
+/* Iconos Sociales */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.icon-card {
+    width: 60px;
+    height: 35px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.icon-card.dark {
+    background-color: #171a21;
+}
+
+.icon-card img {
+    height: 20px;
+}
+
+/* Botón Final */
+.login-btn {
+    display: block;
+    width: 200px;
+    margin: 0 auto;
+    padding: 10px;
+    background-color: #b3b3b3;
+    border: 1px solid #999;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    background-color: #a0a0a0;
+}
+
+.register-btn {
+    display: block;
+    width: 250px;
+    margin: 0 auto;
+    padding: 12px;
+    background-color: #b3b3b3;
+    border: 1px solid #999;
+    color: #333;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.register-btn:hover {
+    background-color: #a0a0a0;
+}

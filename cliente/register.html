@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | NextPlayer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="navbar">
+        <main div class="logo">
+            <a href="/">
+                <img src="img/nextPlayerLogo.png" alt="Nexxt Logo" class="logo-img">
+            </a>
+        </main>
+        <nav class="nav-links">
+            <a href="#" class="active">REGISTER</a>
+            <a href="#">LOG IN</a>
+        </nav>
+    </header>
+
+    <main class="content">
+        <section class="register-box">
+            <form id="registerForm">
+                
+                <section class="input-field">
+                    <label for="email">Correo</label>
+                    <input type="email" id="email" name="email" required>
+                </section>
+
+                <section class="input-field">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="username" required>
+                </section>
+
+                <section class="input-field">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required>
+                </section>
+
+                <section class="input-field">
+                    <label for="confirm-password">Repetir contraseña</label>
+                    <input type="password" id="confirm-password" name="confirm-password" required>
+                </section>
+
+                <section class="social-icons">
+                    <div class="icon-card"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google"></div>
+                    <div class="icon-card dark"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968814.png" alt="Steam"></div>
+                    <div class="icon-card"><img src="https://cdn-icons-png.flaticon.com/512/8002/8002150.png" alt="Riot"></div>
+                </section>
+
+                <button type="submit" class="register-btn">Registrarse</button>
+            </form>
+        </section>
+    </main>
+
+</body>
+</html>
